@@ -1,28 +1,32 @@
 # 10X Shop Project Plan
 
-## Goal
+## Goal and scope
 
-Deliver the required CORE storefront first, then the useful FULL additions described in the graduation project PRD.
+Build the CORE shopping path first, then add the FULL catalog, product, cart, order, profile, and optimization features from Appendix A. Payment processing and server authentication remain outside scope because the PRD defines this as a local learning simulation.
 
-## CORE
+## Work breakdown
 
-- React 19, Vite, strict TypeScript, and Tailwind CSS v4 setup
-- Responsive layout, navigation, catalog, product detail, and local demo login
-- Cart reducer with immediate header count, quantity changes, removal, and `10X10`
-- Validated checkout simulation with confirmation and empty-cart behavior
-- DummyJSON loading, error, and empty states
-- Typecheck and production build
+| Epic | Scope | Estimate | Definition of done |
+|---|---|---:|---|
+| Setup and types | React 19, Vite, strict TypeScript, Tailwind v4, shared contracts | 3 hours | Typecheck passes and shared models are used across pages |
+| Auth and layout | Header, footer, routes, local login, protected checkout | 3 hours | Login/logout and route behavior work without page reloads |
+| Catalog | DummyJSON, categories, search, sorting, URL state, paging | 5 hours | URL restores filters and each API page requests 12 products |
+| Product | Details, gallery, stock, reviews, related products | 4 hours | Invalid ids show not found; reviews persist locally |
+| Cart and checkout | Reducer, promo, shipping, form validation, confirmation | 4 hours | Cart survives refresh and valid checkout saves an order |
+| Orders and profile | Order status, detail/reorder, profile, theme, clear data | 4 hours | Orders and profile remain available after reload |
+| Quality and docs | Typecheck, build, responsive/browser checks, project reports | 4 hours | Results and outstanding limitations are recorded honestly |
 
-## FULL
+## Risks and mitigations
 
-- Search, category filtering, sorting, profile, local orders, and theme persistence
-- Reviews-ready API data and optional catalog enhancements
-- Lazy route loading, error boundary, and performance review
+- DummyJSON or network access may fail: surface loading/error/retry states and keep cart/order data local.
+- Browser storage may contain an older shape: validate stored data and migrate previous cart/order rows.
+- A deployment host may not support SPA routes by default: configure an `/index.html` rewrite before release.
+- Device/browser behavior may differ: use the compatibility matrix to record real checks before claiming support.
 
 ## Release steps
 
-1. Install dependencies and run `npm run typecheck`.
-2. Run `npm run build` and resolve all reported issues.
-3. Check the core shopping flow at mobile and desktop widths.
-4. Create a public GitHub repository and deploy to Vercel or Netlify when credentials and approval are available.
-5. Record the final verification and deployment links in `REPORT.md`.
+1. Run `npm run typecheck` and fix all TypeScript errors.
+2. Run `npm run build`; review any environment-specific build failures separately from source errors.
+3. Check the complete shopping flow at mobile and desktop widths, then run cross-browser and accessibility checks.
+4. Create a GitHub repository and deploy only after the project owner supplies the needed account access and explicitly approves public release.
+5. Record verification, live links, and remaining work in `REPORT.md`.
