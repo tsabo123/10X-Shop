@@ -84,7 +84,9 @@ Products and categories come from [DummyJSON](https://dummyjson.com/docs/product
 
 ## Deployment
 
-The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly. The local changes in this workspace have not been pushed to GitHub or deployed.
+The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly.
+
+GitHub Pages deployment is also configured in `.github/workflows/deploy-pages.yml`. In the repository settings, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source. After that one-time setting, each push to `main` builds the app and deploys it to `https://tsabo123.github.io/10X-Shop/`. The workflow builds with the repository URL as its Vite base path and includes a fallback page for client-side routes.
 
 ## Credits
 
