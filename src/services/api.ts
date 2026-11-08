@@ -1,5 +1,8 @@
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(
+    public readonly status: number,
+    message: string
+  ) {
     super(message);
     this.name = 'ApiError';
   }
@@ -9,7 +12,10 @@ export function isApiError(error: unknown): error is ApiError {
 }
 export class ApiClient {
   constructor(private readonly baseUrl: string) {}
-  private async request<Result>(path: string, init: RequestInit = {}): Promise<Result> {
+  private async request<Result>(
+    path: string,
+    init: RequestInit = {}
+  ): Promise<Result> {
     let response: Response;
     try {
       response = await fetch(`${this.baseUrl}${path}`, {
@@ -20,10 +26,18 @@ export class ApiClient {
         }
       });
     } catch (error: unknown) {
-      if (error instanceof DOMException && error.name === 'AbortError') throw error;
-      throw new ApiError(0, 'The product service is unavailable. Check your internet connection.');
+      if (error instanceof DOMException && error.name === 'AbortError')
+        throw error;
+      throw new ApiError(
+        0,
+        'The product service is unavailable. Check your internet connection.'
+      );
     }
-    if (!response.ok) throw new ApiError(response.status, (await response.text()) || `Request failed (${response.status}).`);
+    if (!response.ok)
+      throw new ApiError(
+        response.status,
+        (await response.text()) || `Request failed (${response.status}).`
+      );
     return (await response.json()) as Result;
   }
   get<Result>(path: string, signal?: AbortSignal): Promise<Result> {

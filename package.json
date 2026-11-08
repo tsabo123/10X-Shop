@@ -3,7 +3,41 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "dev": "vite", "build": "tsc -b && vite build", "preview": "vite preview", "typecheck": "tsc -b --pretty" },
-  "dependencies": { "@tailwindcss/vite": "^4.1.11", "lucide-react": "^0.468.0", "react": "^19.1.0", "react-dom": "^19.1.0", "react-router-dom": "^7.6.2", "tailwindcss": "^4.1.11" },
-  "devDependencies": { "@types/react": "^19.1.8", "@types/react-dom": "^19.1.7", "@vitejs/plugin-react": "^4.6.0", "typescript": "~5.8.3", "vite": "^6.3.5" }
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty",
+    "lint": "eslint .",
+    "format": "prettier --write src/**/*.ts src/**/*.tsx src/**/*.css index.html README.md PLAN.md REPORT.md DEBUG-LOG.md COMPATIBILITY.md package.json eslint.config.js vite.config.ts .prettierrc.json"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "formik": "^2.4.9",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "tailwindcss": "^4.1.11",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.7",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^6.3.5"
+  },
+  "overrides": {
+    "minimatch": "^11.0.3"
+  }
 }

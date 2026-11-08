@@ -1,47 +1,60 @@
-# 10X Shop Completion Report
+# 10X Shop Audit Remediation Report
 
-## Delivery status
+**Updated:** 8 November 2026  
+**Reviewed baseline:** mentor audit of GitHub commit `21cb487` (4 November 2026)  
+**Scope:** local changes in the existing Git checkout after that reviewed commit
 
-The shopping application now covers the CORE shopping flow and most functional FULL features described in Appendix A. The project is not ready to claim full PRD completion because build, live browser, browser-matrix, performance, deployment, and GitHub process evidence are missing.
+## Audit baseline
 
-| Area | Status | Evidence or remaining work |
-|---|---|---|
-| CORE catalog, product, cart, login, checkout, routing | Implemented | 12 products per page, stock-aware reducer, controlled forms, checkout guard, not-found route |
-| FULL catalog | Implemented | Search debounce, API categories, sort, URL state, paginated routes, retry, AbortController |
-| FULL product | Implemented | Gallery, local reviews, average rating, related products |
-| FULL cart and orders | Implemented | `10X10`, shipping calculation, local order history, status simulation, detail, reorder |
-| FULL profile and theme | Implemented | Profile form, clear local data, shared theme persistence |
-| Additional FULL login UX | Partially implemented | Local sign-up and password-recovery demo screens are present; Formik/Yup is not installed or used, and passwords are deliberately not persisted |
-| TypeScript/API architecture | Implemented | Strict types, no explicit `any`, API client/error, type guards, Cart/Order models, generic storage |
-| Responsive/accessibility implementation | Implemented in source | Mobile one-column catalog at 375px, semantic labels, visible focus styles; real browser audit remains pending |
-| Typecheck | Passed | `npm run typecheck` completed without errors after the latest changes |
-| Production build | Blocked | TypeScript phase passes; Vite fails with Windows `EPERM` resolving `src/main.tsx` |
-| DummyJSON live requests | Not verified from this environment | Direct request failed because DNS could not resolve `dummyjson.com`; the API shape and supported sorting/pagination are documented by [DummyJSON](https://dummyjson.com/docs/products) |
-| Lint | Not configured | ESLint and the PRD `lint` script still need to be added and run |
-| Cross-browser and device matrix | Not run | See `COMPATIBILITY.md` |
-| Lighthouse, bundle budget, deploy | Not run | Needs a successful build and a deployed site; public deployment is intentionally not performed |
-| Git/GitHub process | Not available | This workspace has no Git repository, commits, Issues, PRs, milestones, or progress history |
-| FULL presentation evidence | Not created | Demo video and slides/walkthrough still need to be recorded |
+The mentor's report scored the reviewed submission **CORE 62/83** and **FULL 32/46**. Those numbers apply to the reviewed GitHub commit, not to these newer local changes. They have not been pushed or rescored, so this report does not claim a new score or a passing verdict.
 
-## Verification details
+## Local fixes prepared
 
-- `npm run typecheck`: passed.
-- `npm run build`: failed after TypeScript passed; Vite returned `EPERM` at `src/main.tsx` during realpath resolution.
-- Live `dummyjson.com` requests: blocked by DNS resolution in this environment. The integration uses the documented products, search, category, sort, pagination, and detail endpoints.
-- Mobile/browser checks and deployed-host checks: not performed.
-- No card number or payment method is requested; Appendix A excludes real payment processing.
+| Finding                                                                     | Local change                                                                                                                                                                                                                                                                  | Verification status                                                                              |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Vercel deep links returned 404                                              | Added a rewrite from application paths to `/index.html` in `vercel.json`                                                                                                                                                                                                      | Local configuration added; live deployment not changed                                           |
+| README said there was no repository or deployment                           | Added About, Tech Stack, Live Demo, and accurate deployment sections with the existing public demo URL                                                                                                                                                                        | Source review                                                                                    |
+| Tailwind was imported but used lightly; grid breakpoints lost to custom CSS | Added Tailwind utilities for responsive catalog, product, cart, checkout, header, footer, focus, hover, disabled, and dark states. Moved fallback component styles into `@layer components` so utility classes can override them; removed CSS-controlled product grid columns | Tailwind compiler generated the configured variants; CSS parsed; visual breakpoint check pending |
+| Empty password had the wrong message                                        | Added the exact `Password is required` message; short non-empty passwords retain the minimum-length message                                                                                                                                                                   | Source review; browser check pending                                                             |
+| Product cards showed only brand or category                                 | Cards now show both when a brand exists                                                                                                                                                                                                                                       | Source review; browser check pending                                                             |
+| Checkout required an optional phone number                                  | Phone is validated only when entered                                                                                                                                                                                                                                          | Source review; browser check pending                                                             |
+| Empty-cart redirect did not show its message                                | Cart reads and displays the route-state message                                                                                                                                                                                                                               | Source review; browser check pending                                                             |
+| Product grid displayed a text loading message                               | Added 12 responsive Tailwind skeleton cards                                                                                                                                                                                                                                   | Source review; browser check pending                                                             |
+| Unit and line totals could differ by one cent                               | Discounted unit prices and cart totals are rounded to cents consistently                                                                                                                                                                                                      | Typecheck passed; browser/cart scenario pending                                                  |
+| Storage keys were repeated string literals                                  | Added a shared `STORAGE_KEYS` constant and reused it                                                                                                                                                                                                                          | Typecheck passed                                                                                 |
+| Lint script and ESLint were missing                                         | Added ESLint flat config, TypeScript and React Hooks rules, and `npm run lint`                                                                                                                                                                                                | `npm run lint` passed with no warnings                                                           |
+| Checkout did not use the required Formik/Yup workflow                       | Replaced manual field state/validation with Formik and a typed Yup schema; optional phone remains optional                                                                                                                                                                    | Typecheck and production build passed                                                            |
+| Source files were difficult to read                                         | Added a shared Prettier configuration and formatted source files and project documentation                                                                                                                                                                                    | `prettier --check` passed                                                                        |
+| Formik warned about an unspecified button type                              | Added explicit submit types to form submit buttons in checkout, login, signup, profile, password recovery, and review forms                                                                                                                                                   | Typecheck, lint, and production build passed                                                     |
 
-## Remaining work for full submission
+## Verification
 
-1. Run the production build in a normal local terminal and fix any source or host configuration errors.
-2. Run the app against DummyJSON and complete every route in `COMPATIBILITY.md` on Chrome and Firefox at desktop and mobile widths; include Edge if required for FULL.
-3. Run Lighthouse and record the before/after metrics and bundle size.
-4. Add and run the ESLint `lint` script; capture the remaining real debugging findings in `DEBUG-LOG.md` during actual runtime checks.
-5. If desired, add Formik/Yup to the local demo form and test its validation.
-6. Use the owner's GitHub account to create the repository, real commit history, Issues/Projects, PRs, and progress notes. Those records cannot be fabricated from this workspace.
-7. If the owner wants a live demo, configure Vercel or Netlify and approve public publishing. No deployment has been made.
-8. Record the demo video and prepare the required presentation/walkthrough.
+- `npm run typecheck`: passed after Formik/Yup integration.
+- `npm run lint`: passed with no warnings.
+- Prettier formatting was applied to the source files and documentation; `prettier --check` passed.
+- `npm run build`: passed; Vite generated the production bundle successfully.
+- Vite preview returned HTTP 200 for `/`, `/products/5`, `/cart`, `/checkout`, and an unknown path. This confirms the SPA shell fallback in local preview; live Vercel behavior remains unverified until deployment.
+- Tailwind v4's compiler generated the project utilities and `hover`, `focus-visible`, `disabled`, responsive, and custom dark variants. Lightning CSS parsed the stylesheet and `vercel.json` parsed as valid JSON.
+- An earlier build attempt failed with a transient Windows `EPERM`; after dependency installation, the current production build completed successfully.
+- The mentor reported that the deployed root page and bundle matched the reviewed commit. The newer local code has not been deployed; deep-link behavior therefore remains unverified on the live site.
+- ESLint and the `lint` script are installed/configured and pass.
+- Checkout now uses Formik and Yup. The login screen remains a simple local demo form and does not need a server-backed authentication library.
+- The mentor's baseline also has open process/presentation items: authentic Git history, repository naming, Issues/Projects, merged PRs, progress notes, a demo video, and the original planning deadline. These need real owner-controlled records and cannot be simulated in source code.
+- Chrome/Firefox, Lighthouse, live API, and post-fix visual checks remain pending.
+
+## Findings that need the owner or an external account
+
+- The current folder is the existing Git checkout on `feat/routing-and-catalog`; all changes are uncommitted. The mentor's historical finding about the existing commit sequence remains open. Do not invent earlier commits, Issues, PRs, or progress notes.
+- Pushing the Vercel rewrite and updating the public repository require the owner's explicit approval to publish.
+- The original 23 October planning deadline cannot be changed retroactively. `PLAN.md` now records a dated recovery schedule instead of claiming the original timing was met.
+- Issue/Project history, merged PR count, demo video, browser matrix, and Lighthouse measurements require real work and evidence; they are not claimed as complete.
+
+## Three reviewed defects and their remedies
+
+1. **Responsive grid conflict:** unlayered `.product-grid` declarations overrode Tailwind breakpoint utilities. Component styles are now layered, CSS no longer sets product grid columns, and the catalog uses mobile-first `grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4` utilities.
+2. **Currency rounding drift:** discounted unit prices were kept at fractional cents until display, so a displayed unit multiplied by quantity could disagree with the line total. Price calculation now rounds the unit first and the cart model uses that same value.
+3. **Empty checkout redirect feedback:** checkout passed a message in router state, but the cart did not render it. Cart now reads and displays a validated message from route state.
 
 ## AI assistance
 
-AI coding assistance was used to implement the React application, compare the source against Appendix A, update shared contracts, and revise project documentation. The DummyJSON integration was checked against its official endpoint documentation. TypeScript was run locally; a live API/browser environment was not available for this turn. No repository history or runtime debugging evidence was invented. The owner should review the implementation and be ready to explain the reducer, API requests, models, and local simulation during the defense.
+AI assistance was used for implementation and documentation edits. The project owner should review the changes and be ready to explain the Tailwind cascade-layer fix, currency rounding, and local checkout flow during the defense.

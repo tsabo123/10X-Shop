@@ -1,6 +1,24 @@
 # 10X Shop
 
-10X Shop is a responsive storefront built as a single page application with React 19, TypeScript, Vite, and Tailwind CSS v4. It uses DummyJSON for public product data and browser storage for the demo cart, profile, reviews, theme, and orders. Checkout simulates an order locally and never collects payment details.
+## About
+
+10X Shop is a responsive storefront built as a single page application. It uses DummyJSON for public product data and browser storage for the demo cart, profile, reviews, theme, and orders. Checkout simulates an order locally and never collects payment details.
+
+## Live Demo
+
+[Open the 10X Shop demo](https://10x-shop-sable.vercel.app/)
+
+## Tech Stack
+
+- React 19 and React Router
+- TypeScript with strict checking
+- Vite 6
+- Tailwind CSS v4 utility classes alongside component-specific CSS
+- Formik and Yup for checkout form state and validation
+- ESLint with TypeScript and React Hooks rules
+- Prettier for readable, consistently formatted source files
+- DummyJSON products API
+- Browser `localStorage` for demo-only profile, cart, reviews, theme, and order data
 
 ## Features
 
@@ -34,6 +52,8 @@ npm run dev
 ```bash
 npm run dev
 npm run typecheck
+npm run lint
+npm run format
 npm run build
 npm run preview
 ```
@@ -62,9 +82,9 @@ Pages call typed services or shared contexts. The catalog reads search, category
 
 Products and categories come from [DummyJSON](https://dummyjson.com/docs/products). An internet connection is required. Authentication, checkout, inventory reservation, payment, and fulfillment are simulations only.
 
-## Deploy
+## Deployment
 
-After a successful `npm run build`, publish the `dist` directory on Vercel or Netlify and configure the host to rewrite unknown routes to `/index.html`. No public deployment or repository has been created.
+The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly. The local changes in this workspace have not been pushed to GitHub or deployed.
 
 ## Credits
 

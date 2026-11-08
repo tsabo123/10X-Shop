@@ -1,5 +1,10 @@
 import { Cart } from './Cart';
-import type { CartItem, Order as OrderData, OrderStatus, ShippingInfo } from '../types';
+import type {
+  CartItem,
+  Order as OrderData,
+  OrderStatus,
+  ShippingInfo
+} from '../types';
 export class Order implements OrderData {
   readonly id: number;
   readonly number: string;
@@ -23,7 +28,14 @@ export class Order implements OrderData {
     this.total = data.total;
     this.placedAt = data.placedAt;
   }
-  static create(cart: Cart, items: CartItem[], shipping: ShippingInfo, userId: number, sequence: number, now = new Date()): Order {
+  static create(
+    cart: Cart,
+    items: CartItem[],
+    shipping: ShippingInfo,
+    userId: number,
+    sequence: number,
+    now = new Date()
+  ): Order {
     const subtotal = cart.subtotal();
     const discount = cart.discount();
     const shippingCost = cart.shipping();
@@ -38,7 +50,10 @@ export class Order implements OrderData {
       subtotal,
       discount,
       shippingCost,
-      total: subtotal - discount + shippingCost,
+      total:
+        Math.round(
+          (subtotal - discount + shippingCost + Number.EPSILON) * 100
+        ) / 100,
       placedAt: now.toISOString()
     });
   }
@@ -60,7 +75,8 @@ export class Order implements OrderData {
     return Order.getStatus(this, now);
   }
   static getStatus(order: OrderData, now = new Date()): OrderStatus {
-    const elapsedMinutes = (now.getTime() - new Date(order.placedAt).getTime()) / 60_000;
+    const elapsedMinutes =
+      (now.getTime() - new Date(order.placedAt).getTime()) / 60_000;
     if (elapsedMinutes < 1) return 'Processing';
     if (elapsedMinutes <= 3) return 'Shipped';
     return 'Delivered';
