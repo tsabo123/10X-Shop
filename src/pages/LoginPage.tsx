@@ -16,23 +16,27 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const next: {
+    const validation: {
       username?: string;
       password?: string;
     } = {};
-    if (!username.trim()) next.username = 'Username is required';
-    if (!password.trim()) next.password = 'Password is required';
-    else if (password.trim().length < 6)
-      next.password = 'Password must be at least 6 characters';
-    setErrors(next);
-    if (Object.keys(next).length) return;
+    if (!username.trim()) {
+      validation.username = 'Username is required';
+    }
+    if (!password.trim()) {
+      validation.password = 'Password is required';
+    } else if (password.trim().length < 6) {
+      validation.password = 'Password must be at least 6 characters';
+    }
+    setErrors(validation);
+    if (Object.keys(validation).length) return;
     setSubmitting(true);
     setErrors({});
     try {
       const result = await login(username, password);
       if (result === 'success') {
-        const next = params.get('next');
-        navigate(next ? `/${next}` : '/', {
+        const nextPath = params.get('next');
+        navigate(nextPath ? `/${nextPath}` : '/', {
           replace: true
         });
       } else if (result === 'invalid-credentials') {

@@ -98,7 +98,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="muted flex items-center justify-between">
           <span>
             {product.brand
-              ? `${product.brand} · ${product.category}`
+              ? `${product.category} · ${product.brand}`
               : product.category}
           </span>
           <span>★ {product.rating.toFixed(1)}</span>

@@ -34,11 +34,12 @@ const checkoutSchema: Yup.ObjectSchema<ShippingInfo> = Yup.object({
       Boolean(value && isValidEmail(value))
     )
     .required('Email is required'),
+  // Optional: an empty value is always valid; a non-empty value must be a valid phone number.
   phone: Yup.string()
     .test(
       'valid-phone',
       'Please enter a valid phone number',
-      (value) => !value?.trim() || isValidPhone(value)
+      (value) => !value || !value.trim() || isValidPhone(value.trim())
     )
     .defined(),
   address: Yup.string()
@@ -69,6 +70,11 @@ export default function CheckoutPage() {
         window.setTimeout(resolve, 350);
       });
 
+      const shippingInfo: ShippingInfo = {
+        ...values,
+        phone: values.phone.trim()
+      };
+
       const previousOrders = loadOrders();
       const sequence =
         previousOrders.reduce(
@@ -79,7 +85,7 @@ export default function CheckoutPage() {
       const created = OrderModel.create(
         new Cart(state.items, state.promoCode ?? null),
         state.items,
-        values,
+        shippingInfo,
         user.id,
         sequence
       );
@@ -139,7 +145,7 @@ export default function CheckoutPage() {
             autoComplete="email"
           />
           <Field
-            label="Phone"
+            label="Phone (optional)"
             name="phone"
             type="tel"
             value={formik.values.phone}
