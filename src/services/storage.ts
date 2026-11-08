@@ -1,5 +1,6 @@
 export const STORAGE_KEYS = {
   user: 'shop_user',
+  accounts: 'shop_accounts',
   cart: 'shop_cart',
   orders: 'shop_orders',
   theme: 'shop_theme',

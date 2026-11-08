@@ -4,8 +4,13 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts';
 import { isValidEmail } from '../utils/validation';
 type SignupErrors = Partial<
-  Record<'firstName' | 'lastName' | 'email' | 'username' | 'password', string>
+  Record<
+    'firstName' | 'lastName' | 'email' | 'username' | 'password' | 'form',
+    string
+  >
 >;
+type SignupFieldName =
+  'firstName' | 'lastName' | 'email' | 'username' | 'password';
 export default function SignupPage() {
   const { register, user } = useAuth();
   const navigate = useNavigate();
@@ -18,6 +23,7 @@ export default function SignupPage() {
     password: ''
   });
   const [errors, setErrors] = useState<SignupErrors>({});
+  const [submitting, setSubmitting] = useState(false);
   if (user) return <Navigate to="/profile" replace />;
   const change = (field: keyof typeof form, value: string) => {
     setForm((current) => ({
@@ -29,7 +35,7 @@ export default function SignupPage() {
       [field]: undefined
     }));
   };
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const next: SignupErrors = {};
     if (form.firstName.trim().length < 2)
@@ -39,21 +45,31 @@ export default function SignupPage() {
     if (!isValidEmail(form.email))
       next.email = 'Please enter a valid email address';
     if (!form.username.trim()) next.username = 'Username is required';
-    if (form.password.trim().length < 6)
+    if (form.password.length < 6)
       next.password = 'Password must be at least 6 characters';
     setErrors(next);
     if (Object.keys(next).length) return;
-    if (
-      register(form.username, form.password, {
+    setSubmitting(true);
+    try {
+      const result = await register(form.username, form.password, {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim()
-      })
-    ) {
-      const destination = params.get('next');
-      navigate(destination ? `/${destination}` : '/profile', {
-        replace: true
       });
+      if (result === 'success') {
+        const destination = params.get('next');
+        navigate(destination ? `/${destination}` : '/profile', {
+          replace: true
+        });
+      } else if (result === 'username-taken') {
+        setErrors({ username: 'This username is already registered' });
+      } else if (result === 'email-taken') {
+        setErrors({ email: 'An account with this email already exists' });
+      } else {
+        setErrors({ form: 'Account could not be saved. Please try again.' });
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
   return (
@@ -67,6 +83,7 @@ export default function SignupPage() {
           name="firstName"
           value={form.firstName}
           error={errors.firstName}
+          autoComplete="given-name"
           onChange={change}
         />
         <SignupField
@@ -74,6 +91,7 @@ export default function SignupPage() {
           name="lastName"
           value={form.lastName}
           error={errors.lastName}
+          autoComplete="family-name"
           onChange={change}
         />
         <SignupField
@@ -82,6 +100,7 @@ export default function SignupPage() {
           type="email"
           value={form.email}
           error={errors.email}
+          autoComplete="email"
           onChange={change}
         />
         <SignupField
@@ -89,6 +108,7 @@ export default function SignupPage() {
           name="username"
           value={form.username}
           error={errors.username}
+          autoComplete="username"
           onChange={change}
         />
         <SignupField
@@ -97,17 +117,25 @@ export default function SignupPage() {
           type="password"
           value={form.password}
           error={errors.password}
+          autoComplete="new-password"
           onChange={change}
         />
-        <button type="submit" className="button dark-button full">
-          Create account <ArrowRight size={17} />
+        {errors.form && <small className="error">{errors.form}</small>}
+        <button
+          type="submit"
+          className="button dark-button full"
+          disabled={submitting}
+        >
+          {submitting ? 'Creating account…' : 'Create account'}{' '}
+          <ArrowRight size={17} />
         </button>
       </form>
       <p className="auth-switch">
         Already have a demo account? <Link to="/login">Log in</Link>
       </p>
       <small>
-        This local demo does not store your password or create a real account.
+        Your account is saved in this browser only. The password is stored as a
+        salted hash; no account is sent to a server.
       </small>
     </main>
   );
@@ -118,14 +146,16 @@ function SignupField({
   type = 'text',
   value,
   error,
+  autoComplete,
   onChange
 }: {
   label: string;
-  name: keyof SignupErrors;
+  name: SignupFieldName;
   type?: string;
   value: string;
   error?: string;
-  onChange: (field: keyof SignupErrors, value: string) => void;
+  autoComplete?: string;
+  onChange: (field: SignupFieldName, value: string) => void;
 }) {
   const id = `signup-${name}`;
   return (
@@ -135,6 +165,7 @@ function SignupField({
         id={id}
         name={name}
         type={type}
+        autoComplete={autoComplete}
         value={value}
         aria-invalid={Boolean(error)}
         onChange={(event) => onChange(name, event.target.value)}
