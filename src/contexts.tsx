@@ -12,6 +12,7 @@ import { StorageService, STORAGE_KEYS } from './services/storage';
 import type { CartItem, CartState, Order, Product, User } from './types';
 export const DEMO_USERNAME = 'emilys';
 export const DEMO_PASSWORD = 'emilyspass';
+const AUTH_SESSION_VERSION = 1;
 export type AuthResult =
   | 'success'
   | 'invalid-credentials'
@@ -96,8 +97,27 @@ async function hashPassword(password: string, salt: string): Promise<string> {
 function loadUser(): User | null {
   const saved = StorageService.get<unknown>(STORAGE_KEYS.user, null);
   if (typeof saved !== 'object' || saved === null) return null;
+  if (
+    !('authSessionVersion' in saved) ||
+    saved.authSessionVersion !== AUTH_SESSION_VERSION
+  ) {
+    StorageService.remove(STORAGE_KEYS.user);
+    return null;
+  }
   const item = saved as Partial<User>;
-  if (typeof item.username !== 'string') return null;
+  if (typeof item.username !== 'string') {
+    StorageService.remove(STORAGE_KEYS.user);
+    return null;
+  }
+  const cleanUsername = item.username.trim().toLowerCase();
+  const isDemoAccount = cleanUsername === DEMO_USERNAME;
+  const hasRegisteredAccount = readAccounts().some(
+    (account) => account.username.toLowerCase() === cleanUsername
+  );
+  if (!isDemoAccount && !hasRegisteredAccount) {
+    StorageService.remove(STORAGE_KEYS.user);
+    return null;
+  }
   return {
     id: typeof item.id === 'number' ? item.id : 1001,
     username: item.username,
@@ -144,7 +164,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   const saveUser = (next: User) => {
     setUser(next);
-    StorageService.set(STORAGE_KEYS.user, next);
+    StorageService.set(STORAGE_KEYS.user, {
+      ...next,
+      authSessionVersion: AUTH_SESSION_VERSION
+    });
   };
   const login = async (
     username: string,
@@ -268,7 +291,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...profile
     };
     setUser(next);
-    StorageService.set(STORAGE_KEYS.user, next);
+    StorageService.set(STORAGE_KEYS.user, {
+      ...next,
+      authSessionVersion: AUTH_SESSION_VERSION
+    });
     const accounts = readAccounts();
     if (accounts.some((item) => item.username === user.username)) {
       StorageService.set(
