@@ -45,7 +45,10 @@ export interface User extends AuthUser {
   email: string;
   phone: string;
 }
-export type ProfileFormValues = Pick<User, 'firstName' | 'lastName' | 'email' | 'phone'>;
+export type ProfileFormValues = Pick<
+  User,
+  'firstName' | 'lastName' | 'email' | 'phone'
+>;
 export interface CartItem {
   productId: number;
   title: string;
@@ -81,15 +84,20 @@ export interface Order {
   total: number;
   placedAt: string;
 }
-export type AsyncState<T> = {
-  status: 'idle';
-} | {
-  status: 'loading';
-} | {
-  status: 'success';
-  data: T;
-} | {
-  status: 'error';
-  message: string;
-};
-export type SortOption = '' | 'price-asc' | 'price-desc' | 'rating-desc' | 'title-asc';
+export type AsyncState<T> =
+  | {
+      status: 'idle';
+    }
+  | {
+      status: 'loading';
+    }
+  | {
+      status: 'success';
+      data: T;
+    }
+  | {
+      status: 'error';
+      message: string;
+    };
+export type SortOption =
+  '' | 'price-asc' | 'price-desc' | 'rating-desc' | 'title-asc';
