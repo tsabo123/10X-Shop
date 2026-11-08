@@ -11,9 +11,10 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{
     username?: string;
     password?: string;
+    form?: string;
   }>({});
   const [submitting, setSubmitting] = useState(false);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const next: {
       username?: string;
@@ -26,19 +27,26 @@ export default function LoginPage() {
     setErrors(next);
     if (Object.keys(next).length) return;
     setSubmitting(true);
-    if (login(username, password)) {
-      const next = params.get('next');
-      navigate(next ? `/${next}` : '/', {
-        replace: true
-      });
-    } else
-      setErrors({
-        username: 'Username is required',
-        password: !password.trim()
-          ? 'Password is required'
-          : 'Password must be at least 6 characters'
-      });
-    setSubmitting(false);
+    setErrors({});
+    try {
+      const result = await login(username, password);
+      if (result === 'success') {
+        const next = params.get('next');
+        navigate(next ? `/${next}` : '/', {
+          replace: true
+        });
+      } else if (result === 'invalid-credentials') {
+        setErrors({
+          form: 'Username or password is incorrect. Create an account first if you are new.'
+        });
+      } else {
+        setErrors({
+          form: 'Sign in is unavailable right now. Please try again.'
+        });
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
   if (user)
     return (
@@ -56,7 +64,7 @@ export default function LoginPage() {
     <main className="auth-page mx-auto w-full max-w-xl px-6 py-12 text-center">
       <div className="eyebrow">WELCOME TO THE SHOP</div>
       <h1>Come on in.</h1>
-      <p>Use any username and a password with at least 6 characters.</p>
+      <p>Sign in with your account or create one to get started.</p>
       <form noValidate autoComplete="off" onSubmit={submit}>
         <label htmlFor="login-username">Username</label>
         <input
@@ -87,6 +95,7 @@ export default function LoginPage() {
           }}
         />
         {errors.password && <small className="error">{errors.password}</small>}
+        {errors.form && <small className="error">{errors.form}</small>}
         <button
           type="submit"
           className="button dark-button full transition-colors hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shop-forest disabled:cursor-not-allowed disabled:opacity-50"

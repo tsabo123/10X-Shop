@@ -12,14 +12,29 @@ import { StorageService, STORAGE_KEYS } from './services/storage';
 import type { CartItem, CartState, Order, Product, User } from './types';
 export const DEMO_USERNAME = 'emilys';
 export const DEMO_PASSWORD = 'emilyspass';
+export type AuthResult =
+  | 'success'
+  | 'invalid-credentials'
+  | 'username-taken'
+  | 'email-taken'
+  | 'account-not-found'
+  | 'unavailable';
+type SavedAccount = Pick<
+  User,
+  'id' | 'username' | 'firstName' | 'lastName' | 'email'
+> & {
+  salt: string;
+  passwordHash: string;
+};
 type AuthValue = {
   user: User | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<AuthResult>;
   register: (
     username: string,
     password: string,
     profile: Pick<User, 'firstName' | 'lastName' | 'email'>
-  ) => boolean;
+  ) => Promise<AuthResult>;
+  resetPassword: (email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
   updateProfile: (
     profile: Pick<User, 'firstName' | 'lastName' | 'email' | 'phone'>
@@ -27,6 +42,57 @@ type AuthValue = {
   clearLocalData: () => void;
 };
 const AuthContext = createContext<AuthValue | null>(null);
+function readAccounts(): SavedAccount[] {
+  const saved = StorageService.get<unknown>(STORAGE_KEYS.accounts, []);
+  if (!Array.isArray(saved)) return [];
+  return saved.filter(
+    (item): item is SavedAccount =>
+      typeof item === 'object' &&
+      item !== null &&
+      'username' in item &&
+      typeof item.username === 'string' &&
+      'id' in item &&
+      typeof item.id === 'number' &&
+      'firstName' in item &&
+      typeof item.firstName === 'string' &&
+      'lastName' in item &&
+      typeof item.lastName === 'string' &&
+      'email' in item &&
+      typeof item.email === 'string' &&
+      'salt' in item &&
+      typeof item.salt === 'string' &&
+      'passwordHash' in item &&
+      typeof item.passwordHash === 'string'
+  );
+}
+function createSalt(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join(
+    ''
+  );
+}
+async function hashPassword(password: string, salt: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: new TextEncoder().encode(salt),
+      iterations: 100_000,
+      hash: 'SHA-256'
+    },
+    key,
+    256
+  );
+  return Array.from(new Uint8Array(bits), (byte) =>
+    byte.toString(16).padStart(2, '0')
+  ).join('');
+}
 function loadUser(): User | null {
   const saved = StorageService.get<unknown>(STORAGE_KEYS.user, null);
   if (typeof saved !== 'object' || saved === null) return null;
@@ -80,23 +146,114 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(next);
     StorageService.set(STORAGE_KEYS.user, next);
   };
-  const login = (username: string, password: string): boolean => {
-    if (!username.trim() || password.trim().length < 6) return false;
-    const next = createUser(username);
-    if (!next) return false;
-    saveUser(next);
-    return true;
+  const login = async (
+    username: string,
+    password: string
+  ): Promise<AuthResult> => {
+    const cleanUsername = username.trim().toLowerCase();
+    if (!cleanUsername || password.length < 6) return 'invalid-credentials';
+    if (cleanUsername === DEMO_USERNAME) {
+      if (password !== DEMO_PASSWORD) return 'invalid-credentials';
+      const demoUser = createUser(DEMO_USERNAME);
+      if (!demoUser) return 'unavailable';
+      saveUser(demoUser);
+      return 'success';
+    }
+    const account = readAccounts().find(
+      (item) => item.username.toLowerCase() === cleanUsername
+    );
+    if (!account) return 'invalid-credentials';
+    try {
+      const passwordHash = await hashPassword(password, account.salt);
+      if (passwordHash !== account.passwordHash) return 'invalid-credentials';
+      saveUser({
+        ...account,
+        isLoggedIn: true,
+        phone: ''
+      });
+      return 'success';
+    } catch {
+      return 'unavailable';
+    }
   };
-  const register = (
+  const register = async (
     username: string,
     password: string,
     profile: Pick<User, 'firstName' | 'lastName' | 'email'>
-  ): boolean => {
-    if (!username.trim() || password.trim().length < 6) return false;
-    const next = createUser(username, profile);
-    if (!next) return false;
-    saveUser(next);
-    return true;
+  ): Promise<AuthResult> => {
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanEmail = profile.email.trim().toLowerCase();
+    if (!cleanUsername || password.length < 6) return 'unavailable';
+    if (cleanUsername === DEMO_USERNAME) return 'username-taken';
+    const accounts = readAccounts();
+    if (accounts.some((item) => item.username.toLowerCase() === cleanUsername))
+      return 'username-taken';
+    if (accounts.some((item) => item.email.toLowerCase() === cleanEmail))
+      return 'email-taken';
+    try {
+      const salt = createSalt();
+      const next = createUser(cleanUsername, {
+        ...profile,
+        email: cleanEmail
+      });
+      if (!next) return 'unavailable';
+      const account: SavedAccount = {
+        id: next.id,
+        username: cleanUsername,
+        firstName: next.firstName,
+        lastName: next.lastName,
+        email: cleanEmail,
+        salt,
+        passwordHash: await hashPassword(password, salt)
+      };
+      const updatedAccounts = [...accounts, account];
+      StorageService.set(STORAGE_KEYS.accounts, updatedAccounts);
+      if (!readAccounts().some((item) => item.username === account.username))
+        return 'unavailable';
+      saveUser({
+        ...next,
+        username: cleanUsername,
+        email: cleanEmail
+      });
+      return 'success';
+    } catch {
+      return 'unavailable';
+    }
+  };
+  const resetPassword = async (
+    email: string,
+    password: string
+  ): Promise<AuthResult> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (password.length < 6) return 'unavailable';
+    const accounts = readAccounts();
+    const account = accounts.find(
+      (item) => item.email.toLowerCase() === cleanEmail
+    );
+    if (!account) return 'account-not-found';
+    try {
+      const salt = createSalt();
+      const updatedAccount = {
+        ...account,
+        salt,
+        passwordHash: await hashPassword(password, salt)
+      };
+      const updatedAccounts = accounts.map((item) =>
+        item.username === account.username ? updatedAccount : item
+      );
+      StorageService.set(STORAGE_KEYS.accounts, updatedAccounts);
+      if (
+        !readAccounts().some(
+          (item) =>
+            item.username === account.username &&
+            item.passwordHash === updatedAccount.passwordHash
+        )
+      )
+        return 'unavailable';
+      return 'success';
+    } catch {
+      return 'unavailable';
+    }
   };
   const logout = () => {
     setUser(null);
@@ -112,6 +269,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     setUser(next);
     StorageService.set(STORAGE_KEYS.user, next);
+    const accounts = readAccounts();
+    if (accounts.some((item) => item.username === user.username)) {
+      StorageService.set(
+        STORAGE_KEYS.accounts,
+        accounts.map((item) =>
+          item.username === user.username
+            ? {
+                ...item,
+                firstName: next.firstName,
+                lastName: next.lastName,
+                email: next.email
+              }
+            : item
+        )
+      );
+    }
   };
   const clearLocalData = () => {
     StorageService.remove(STORAGE_KEYS.cart);
@@ -124,6 +297,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         login,
         register,
+        resetPassword,
         logout,
         updateProfile,
         clearLocalData

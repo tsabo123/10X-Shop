@@ -36,7 +36,7 @@
 - `useReducer` cart with `10X10` discount, shipping calculation, and persistent storage
 - Orders list/details, timed status changes, and reorder
 - Editable profile, clear local data, persistent light/dark theme, lazy routes, and error boundary
-- Local sign-up and password-recovery demo screens; no credentials are stored or emailed
+- Local account registration, sign-in, and password reset with salted password hashes in browser storage; no account credentials are sent to a server
 
 ## Run locally
 
@@ -60,7 +60,7 @@ npm run preview
 
 ## Demo sign in
 
-Use username `emilys` and password `emilyspass`, or any non-empty username with a password of at least six characters. This is a local learning demo; no password is sent to a server.
+Use the built-in demo account `emilys` / `emilyspass`, or create an account on the sign-up page. Registered accounts and salted password hashes are saved only in the current browser's local storage. Clearing browser data removes those accounts. This is a learning demo, not production authentication.
 
 ## Architecture
 
