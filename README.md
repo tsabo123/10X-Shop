@@ -7,6 +7,7 @@
 ## Live Demo
 
 [Open the 10X Shop demo](https://10x-shop-q6vt8l208-tsabo123s-projects.vercel.app/)
+[Open the 10X Shop demo](https://tsabo123.github.io/10X-Shop-mariami-tsabadze/)
 
 ## Tech Stack
 
@@ -82,11 +83,13 @@ Pages call typed services or shared contexts. The catalog reads search, category
 
 Products and categories come from [DummyJSON](https://dummyjson.com/docs/products). An internet connection is required. Authentication, checkout, inventory reservation, payment, and fulfillment are simulations only.
 
+
 ## Deployment
 
 The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly.
 
-GitHub Pages deployment is also configured in `.github/workflows/deploy-pages.yml`. In the repository settings, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source. After that one-time setting, each push to `main` builds the app and deploys it to `https://tsabo123.github.io/10X-Shop/`. The workflow builds with the repository URL as its Vite base path and includes a fallback page for client-side routes.
+GitHub Pages deployment is also configured in `.github/workflows/deploy-pages.yml`. In the repository settings, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source. After that one-time setting, each push to `main` builds the app and deploys it to `https://github.io`. The workflow builds with the repository URL as its Vite base path and includes a fallback page for client-side routes.
+
 
 ## Credits
 
