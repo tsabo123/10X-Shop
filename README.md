@@ -6,7 +6,7 @@
 
 ## Live Demo
 
-[Open the 10X Shop demo](https://10x-shop-sable.vercel.app/)
+[Open the 10X Shop demo](https://10x-shop-q6vt8l208-tsabo123s-projects.vercel.app/)
 
 ## Tech Stack
 
