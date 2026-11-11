@@ -35,8 +35,8 @@ export default function LoginPage() {
     try {
       const result = await login(username, password);
       if (result === 'success') {
-        const nextPath = params.get('next');
-        navigate(nextPath ? `/${nextPath}` : '/', {
+        const next = params.get('next');
+        navigate(next ? `/${next}` : '/', {
           replace: true
         });
       } else if (result === 'invalid-credentials') {
