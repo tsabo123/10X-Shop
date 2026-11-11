@@ -11,8 +11,8 @@ import { useAuth } from '../contexts';
 import { Layout } from './Layout';
 import { PageNotFound } from './shared';
 import { ToastProvider } from './Toast';
-const CatalogPage = lazy(() => import('../pages/CatalogPage'));
-const ProductPage = lazy(() => import('../pages/ProductPage'));
+import CatalogPage from '../pages/CatalogPage';
+import ProductPage from '../pages/ProductPage';
 const CartPage = lazy(() => import('../pages/CartPage'));
 const CheckoutPage = lazy(() => import('../pages/CheckoutPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
@@ -93,7 +93,7 @@ export default function App() {
     <ToastProvider>
       <StoreErrorBoundary>
         <ScrollToTop />
-        <Suspense fallback={<div className="status">Opening the shop…</div>}>
+        <Suspense fallback={null}>
           <Routes>
             <Route element={<Layout />}>
               <Route index element={<CatalogPage />} />

@@ -44,7 +44,7 @@ export default function ProductPage() {
     getProduct(productId, controller.signal)
       .then((value) => {
         setProduct(value);
-        setSelectedImage(value.images[0] ?? value.thumbnail);
+        setSelectedImage(value.thumbnail);
         setLocalReviews(getLocalReviews(value.id));
       })
       .catch((reason: unknown) => {
