@@ -38,7 +38,7 @@ jobs:
         run: npm run lint
 
       - name: Build for the repository URL
-        --base=/10X-Shop-mariami-tsabadze/
+        run: npx vite build --base=/10X-Shop-mariami-tsabadze/
 
       - name: Add SPA route fallback
         run: cp dist/index.html dist/404.html
