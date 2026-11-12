@@ -8,6 +8,7 @@
 
 [Open the 10X Shop demo](https://10x-shop-sable.vercel.app/)
 
+
 ## Tech Stack
 
 - React 19 and React Router
@@ -60,7 +61,9 @@ npm run preview
 
 ## Demo sign in
 
-Use the built-in demo account `emilys` / `emilyspass`, or create an account on the sign-up page. Registered accounts and salted password hashes are saved only in the current browser's local storage. Clearing browser data removes those accounts. This is a learning demo, not production authentication.
+
+Enter any non-empty username and a password with at least 6 characters. Authentication is simulated locally in the browser and no passwords are stored or sent to a server.
+
 
 ## Architecture
 
@@ -85,7 +88,6 @@ Products and categories come from [DummyJSON](https://dummyjson.com/docs/product
 ## Deployment
 
 The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly.
-GitHub Pages deployment is also configured in `.github/workflows/deploy-pages.yml`. In the repository settings, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source. After that one-time setting, each push to `main` builds the app and deploys it to `https://github.io`. The workflow builds with the repository URL as its Vite base path and includes a fallback page for client-side routes.
 
 
 ## Credits

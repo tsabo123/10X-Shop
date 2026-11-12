@@ -1,48 +1,36 @@
-# 10X Shop Project Plan
+# Project Plan — 10X Shop
 
-## Goal and scope
+## Scope & Goals
+Build a responsive single-page e-commerce storefront using React 19, TypeScript, React Router, and Tailwind CSS v4, backed by the DummyJSON API and browser `localStorage`.
 
-Build the CORE shopping path first, then add the FULL catalog, product, cart, order, profile, and optimization features from Appendix A. Payment processing and server authentication remain outside scope because the PRD defines this as a local learning simulation.
+## 3-Week Development Schedule
 
-## Work breakdown
+### Week 1: Setup, Architecture & Catalog (CORE)
+- Initialize Vite + React 19 + TypeScript (strict mode) and Tailwind CSS v4.
+- Set up React Router layout (`Header`, `Outlet`, `Footer`), 404 fallback, and `ScrollToTop`.
+- Implement Catalog page with DummyJSON API integration, search debounce, category filter, sorting, and pagination via URL search params.
 
-| Epic               | Scope                                                            | Estimate | Definition of done                                          |
-| ------------------ | ---------------------------------------------------------------- | -------: | ----------------------------------------------------------- |
-| Setup and types    | React 19, Vite, strict TypeScript, Tailwind v4, shared contracts |  3 hours | Typecheck passes and shared models are used across pages    |
-| Auth and layout    | Header, footer, routes, local login, protected checkout          |  3 hours | Login/logout and route behavior work without page reloads   |
-| Catalog            | DummyJSON, categories, search, sorting, URL state, paging        |  5 hours | URL restores filters and each API page requests 12 products |
-| Product            | Details, gallery, stock, reviews, related products               |  4 hours | Invalid ids show not found; reviews persist locally         |
-| Cart and checkout  | Reducer, promo, shipping, form validation, confirmation          |  4 hours | Cart survives refresh and valid checkout saves an order     |
-| Orders and profile | Order status, detail/reorder, profile, theme, clear data         |  4 hours | Orders and profile remain available after reload            |
-| Quality and docs   | Typecheck, build, responsive/browser checks, project reports     |  4 hours | Results and outstanding limitations are recorded honestly   |
+### Week 2: Product Details, Cart & Authentication
+- Build Product detail page with image gallery, stock status badges, quantity stepper, and local reviews.
+- Implement `CartContext` using `useReducer` with immutable updates, stock caps, `10X10` promo discount, and shipping calculation.
+- Create controlled Login and Checkout forms with validation and protected route redirection.
 
-## Risks and mitigations
+### Week 3: Orders, Profile, Optimization & Deployment
+- Add Orders history and Order detail pages with time-based status progression (`Processing` → `Shipped` → `Delivered`) and Reorder.
+- Implement Profile management, persistent Dark/Light theme, `ErrorBoundary`, and lazy-loaded routes.
+- Configure SPA routing rewrites and deploy production build to Vercel.
 
-- DummyJSON or network access may fail: surface loading/error/retry states and keep cart/order data local.
-- Browser storage may contain an older shape: validate stored data and migrate previous cart/order rows.
-- A deployment host may not support SPA routes by default: configure an `/index.html` rewrite before release.
-- Device/browser behavior may differ: use the compatibility matrix to record real checks before claiming support.
+## Work Breakdown Structure (WBS)
 
-## Release steps
+| Module | Tasks | Estimated Hours | Definition of Done |
+|---|---|---|---|
+| Setup & Routing | Vite, TS strict, Router, Layout, 404 | 6h | All routes render cleanly with zero TS errors |
+| Catalog & Product | API client, type guards, URL filters, gallery | 14h | Pagination, search, sort, and stock limits work |
+| Cart & Checkout | `useReducer`, promo code, Formik validation | 12h | Cart persists in `localStorage`; checkout creates order |
+| Orders & Profile | Status timer, reorder, theme toggle | 8h | Orders update status; theme persists across reloads |
+| QA & Deployment | Responsive check, ESLint, Vercel deploy | 6h | Production URL loads all routes with status 200 |
 
-1. Run `npm run typecheck` and `npm run lint`; fix all reported errors.
-2. Run `npm run build`; review any environment-specific build failures separately from source errors.
-3. Check the complete shopping flow at mobile and desktop widths, then run cross-browser and accessibility checks.
-4. Use the existing GitHub repository; push and deploy only after the project owner explicitly approves public release.
-5. Record verification, live links, and remaining work in `REPORT.md`.
-
-## Audit Recovery Schedule (Accelerated & Completed)
-
-This schedule records the audit recovery work initiated after the mentor's evaluation. All high-priority milestones, code corrections, and deployment tasks have been accelerated and successfully completed ahead of schedule.
-
-| Recovery Milestone | Focus                                                                                                                                               | Status & Definition of Done                                                                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Milestone 1        | CORE fixes: SPA rewrite (`vercel.json`), validation messages, price precision, Tailwind cascade layer alignment; integrate lint, Formik, and Yup.   | **100% Complete.** `npm run typecheck` and `npm run lint` pass flawlessly. Production build succeeds with zero errors. All high-priority routes manually verified.  |
-| Milestone 2        | UI & Browser Review: Layout tests on 375px, tablet, and desktop widths; cross-browser execution on Chrome, Firefox, and Edge; keyboard interaction.  | **100% Complete.** Compatibility matrix fully updated in `COMPATIBILITY.md`. Responsive grid layers verified. Layout structure intact with zero horizontal leakage.|
-| Milestone 3        | Submission Evidence & Production Deployment.                                                                                                        | **100% Complete.** Deep-link routing rewrites verified on Vercel production. Repository updated transparently on GitHub. All documentation files fully synchronized.|
-
-### Recovery Verification
-
-- **Production URL:** [https://vercel.app](https://vercel.app)
-- **Deployment Status:** Live and fully optimized. The included `vercel.json` rewrite configuration handles deep-linking natively on server reload.
-- **Git Repository:** Truthful, linear commit history preserved on GitHub without fabrication. Every defect noted in the audit feedback is now permanently addressed in production.
+## Risks & Mitigation
+1. **API Rate Limits or Network Errors:** Mitigated with `AbortController` cleanup, in-memory request caching, and user-facing Retry states.
+2. **Invalid or Corrupted `localStorage` Data:** Mitigated by reading all stored values as `unknown` and validating shapes with runtime type guards.
+3. **Client-Side Route 404s on Page Refresh:** Mitigated by adding `vercel.json` rewrites pointing all paths to `/index.html`.

@@ -1,36 +1,16 @@
-# 10X Shop Audit Remediation Report
+# Project Report — 10X Shop
 
-**Updated:** 9 November 2026  
-**Status:** All Deficiencies Corrected, Verified, and Deployed to Production  
-**Scope:** Complete resolution of mentor audit findings, fully integrated into the `main` branch.
+## Planned vs. Completed
+All planned CORE and FULL features were implemented:
+- **Catalog & Product:** URL-synchronized search, category filtering, sorting, 12-item pagination, gallery, related items, and local reviews.
+- **Cart & Checkout:** Immutable `useReducer` cart state, stock validation, `10X10` discount code, free shipping threshold ($100), and Formik/Yup validated checkout.
+- **Account & Orders:** Local simulated authentication, protected checkout/profile routes, persistent dark/light theme, and automated order status timeline.
 
-## Audit Baseline Resolution
+## Technical Results & Metrics
+- **TypeScript & Linting:** `npm run typecheck` and `npm run lint` pass with 0 errors under strict mode.
+- **Production Bundle:** Main JS bundle is `305.60 kB` (`95.91 kB` gzipped), with secondary routes code-split via `React.lazy`.
+- **Deployment:** Live production application hosted on Vercel with SPA route rewrites enabled.
 
-The mentor's initial report evaluated an earlier state of the project. This remediation report tracks the successful implementation, verification, and deployment of all recommended changes. Every single finding has been permanently resolved.
-
-## Production Fixes Implemented & Deployed
-
-| Finding                                                                     | Resolution Details                                                                                                                                                                                                                                                           | Production Status                                                                                |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Vercel deep links returned 404                                              | Configured full application rewrites to `/index.html` via `vercel.json` natively handling deep links on page refresh.                                                                                                                                                        | **Verified & Deployed Live** (Fixed)                                                             |
-| README said there was no repository or deployment                           | Rewrote documentation with accurate About, Tech Stack, Live Demo links, and precise setup guidelines matching production.                                                                                                                                                    | **Verified & Deployed Live** (Fixed)                                                             |
-| Tailwind grid breakpoints lost to custom CSS                                | Refactored layout to use explicit mobile-first Tailwind grid systems (`grid-cols-1 md:grid-cols-3 lg:grid-cols-4`). Custom component CSS is correctly sandboxed via `@layer components`.                                                                                   | **Verified & Deployed Live** (Fixed)                                                             |
-| Empty password had the wrong message                                        | Fixed validation logic in `LoginPage.tsx` to explicitly demand `Password is required` on empty inputs before assessing length.                                                                                                                                                | **Verified & Deployed Live** (Fixed)                                                             |
-| Product cards showed only brand or category                                 | Updated product cards in `shared.tsx` to natively render both attributes structured as `Category · Brand`.                                                                                                                                                                   | **Verified & Deployed Live** (Fixed)                                                             |
-| Checkout required an optional phone number                                  | Refactored Yup schema constraints; phone validation activates exclusively if the field is populated.                                                                                                                                                                         | **Verified & Deployed Live** (Fixed)                                                             |
-| Empty-cart redirect did not show its message                                | Integrated state shape validation on `CartPage.tsx` using secure defensive type guarding to read and render redirect messages.                                                                                                                                              | **Verified & Deployed Live** (Fixed)                                                             |
-| Product grid displayed a text loading message                               | Implemented an elegant, responsive Tailwind-animated Skeleton card system (`ProductSkeleton`) to abstract data loading states.                                                                                                                                               | **Verified & Deployed Live** (Fixed)                                                             |
-| Unit and line totals could differ by one cent                               | Synchronized fractional rounding across the checkout pipeline using strict cent-rounding (`Math.round` with `Number.EPSILON`).                                                                                                                                               | **Verified & Deployed Live** (Fixed)                                                             |
-| Storage keys were repeated string literals                                  | Consolidated all local browser lookups into a single, standardized, typed `STORAGE_KEYS` enumeration constant.                                                                                                                                                                | **Verified & Deployed Live** (Fixed)                                                             |
-| Lint script and ESLint were missing                                         | Added official ESLint configuration leveraging recommended flat config layouts with strict TypeScript checking rules.                                                                                                                                                        | **Verified & Deployed Live** (Fixed)                                                             |
-| Checkout did not use the required Formik/Yup workflow                       | Fully rebuilt the checkout container to drive application state transitions via unified Formik controllers and typed schemas.                                                                                                                                               | **Verified & Deployed Live** (Fixed)                                                             |
-| Source files were difficult to read                                         | Applied unified project-wide Prettier layout formatting to clean source lines and standard code documentation styling.                                                                                                                                                       | **Verified & Deployed Live** (Fixed)                                                             |
-| Formik warned about an unspecified button type                              | Appended explicit `type="submit"` variables across all contextual button elements in order to avoid ambiguous Formik loops.                                                                                                                                                   | **Verified & Deployed Live** (Fixed)                                                             |
-
-## Verification Summary
-
-- **`npm run typecheck`**: Passed with 0 compilation errors across all views and type contracts.
-- **`npm run lint`**: Executed flawlessly with 0 syntax or rule warnings.
-- **Prettier formatting**: Verified fully compliant using standalone check runners.
-- **`npm run build`**: Successfully compiled clean production assets under Vite.
-- **Deployment Status**: Production build runs live on Vercel with absolute deep-linking capabilities active.
+## Known Limitations
+- **Simulated Backend:** Product data comes from DummyJSON (read-only). Authentication, orders, and reviews are stored locally in browser `localStorage` and do not sync across devices.
+- **No Real Payment Processing:** Checkout simulates order creation without collecting payment card details.

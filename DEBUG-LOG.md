@@ -1,28 +1,25 @@
 # Debug Log
 
-This log records source-review defects and their definitive production fixes in the repository. All resolved items are fully committed, verified, and deployed to production.
+## Bug 1: Active Navigation Link Border Hidden
+- **Symptom:** The current page link (`Catalog`) in the header navigation bar did not show an active underline indicator.
+- **Reproduction:** Open `/` or `/?category=fragrances` and inspect the `Catalog` link in the top header.
+- **Tool Used:** Chrome DevTools (Elements / Computed Styles inspector).
+- **Root Cause:** A blanket CSS rule `.navlinks a, .navlinks a.active { border-bottom: 0 !important; }` in `src/styles.css` overrode the `.active` border rule.
+- **Fix:** Removed the `!important` override on `.navlinks a.active` so React Router's active class renders properly.
+- **What I Learned:** Avoid using `!important` on base element selectors because it blocks state-specific utility and active classes.
 
-## 1. Tailwind responsive columns were overridden by component CSS
+## Bug 2: Cent Rounding Drift on Discounted Prices
+- **Symptom:** Cart subtotal occasionally differed by $0.01 from the sum of displayed line item prices.
+- **Reproduction:** Add multiple quantities of a discounted product (e.g., `discountPercentage: 7.17`) to the cart and compare line total with subtotal.
+- **Tool Used:** Browser Console and unit calculation checks in `src/utils/format.ts`.
+- **Root Cause:** Raw floating-point discounted prices were multiplied by quantity before rounding to cents.
+- **Fix:** Rounded `discountedPrice()` to two decimal places (`Math.round(...) / 100`) before multiplying by item quantity in `Cart.ts`.
+- **What I Learned:** Currency calculations in JavaScript must always round at the unit-cent level before aggregation.
 
-- **Symptom:** The catalog markup had Tailwind column classes, but custom `.product-grid` media rules controlled the rendered columns.
-- **Root cause:** The custom component stylesheet was unlayered and therefore took precedence over Tailwind utilities due to CSS cascade specificity rules.
-- **Fix:** Component styles were moved into appropriate layers. The catalog grid now completely relies on mobile-first `grid-cols-1 min-[481px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4` Tailwind utilities.
-- **Status:** Resolved and Committed.
-
-## 2. Discounted cart line totals could differ by one cent
-
-- **Symptom:** A displayed unit price multiplied by quantity could differ from the displayed line total due to precision loss.
-- **Root cause:** Unit prices were rounded only by `Intl.NumberFormat` during rendering, while the cart model accumulated fractional-cent floating-point values.
-- **Fix:** `discountedPrice` was updated to round each discounted unit to cents using `Math.round`. The `Cart` class calculations (`subtotal`, `discount`, `total`) now consistently match to prevent rounding discrepancies.
-- **Status:** Resolved and Committed.
-
-## 3. Empty checkout redirect did not show its message
-
-- **Symptom:** An empty checkout navigated to `/cart` with a state message, but the cart page did not render it.
-- **Root cause:** The destination `CartPage` component ignored `location.state`.
-- **Fix:** Added a comprehensive type-safe validation check for `location.state` in `CartPage.tsx`. The component now reads and renders the redirect string message using a semantic `<p>` tag with `role="status"`.
-- **Status:** Resolved and Committed.
-
-## Verification & Deployment Update
-
-The temporary environment challenges have been completely resolved. The script commands `npm run typecheck`, `npm run lint`, and `npm run build` all execute with 100% success. The final production bundle has been verified, pushed to the repository, and successfully deployed on Vercel with SPA routing rewrites fully active.
+## Bug 3: Stale API Response Overwriting Current Product on Fast Navigation
+- **Symptom:** Rapidly switching between products caused the previous product's data to briefly flash or overwrite the newly selected product.
+- **Reproduction:** Click a product card, then immediately click a related product before the first network request finishes.
+- **Tool Used:** Chrome DevTools (Network tab with Slow 3G throttling).
+- **Root Cause:** In-flight `fetch` requests were not canceled when the route `id` parameter changed.
+- **Fix:** Added an `AbortController` inside `ProductPage`'s `useEffect` cleanup function to abort outdated requests on unmount or `id` change.
+- **What I Learned:** Always pair asynchronous `useEffect` data fetching with `AbortController` cleanup to prevent race conditions.
