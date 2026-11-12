@@ -6,7 +6,8 @@
 
 ## Live Demo
 
-[Open the 10X Shop demo](https://10x-shop-sable.vercel.app/)
+[Open the 10X Shop demo](https://10x-shop-q6vt8l208-tsabo123s-projects.vercel.app/)
+[Open the 10X Shop demo](https://tsabo123.github.io/10X-Shop-mariami-tsabadze/)
 
 
 ## Tech Stack
@@ -84,6 +85,7 @@ Pages call typed services or shared contexts. The catalog reads search, category
 ## Product data
 
 Products and categories come from [DummyJSON](https://dummyjson.com/docs/products). An internet connection is required. Authentication, checkout, inventory reservation, payment, and fulfillment are simulations only.
+
 
 ## Deployment
 
