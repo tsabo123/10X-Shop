@@ -6,9 +6,7 @@
 
 ## Live Demo
 
-[Open the 10X Shop demo](https://10x-shop-q6vt8l208-tsabo123s-projects.vercel.app/)
-[Open the 10X Shop demo](https://tsabo123.github.io/10X-Shop-mariami-tsabadze/)
-
+[Open the 10X Shop demo](https://10x-shop-sable.vercel.app/)
 
 ## Tech Stack
 
@@ -38,7 +36,7 @@
 - `useReducer` cart with `10X10` discount, shipping calculation, and persistent storage
 - Orders list/details, timed status changes, and reorder
 - Editable profile, clear local data, persistent light/dark theme, lazy routes, and error boundary
-- Local account registration, sign-in, and password reset with salted password hashes in browser storage; no account credentials are sent to a server
+- Local simulated authentication and persistent user session in browser storage
 
 ## Run locally
 
@@ -62,9 +60,7 @@ npm run preview
 
 ## Demo sign in
 
-
 Enter any non-empty username and a password with at least 6 characters. Authentication is simulated locally in the browser and no passwords are stored or sent to a server.
-
 
 ## Architecture
 
@@ -86,11 +82,9 @@ Pages call typed services or shared contexts. The catalog reads search, category
 
 Products and categories come from [DummyJSON](https://dummyjson.com/docs/products). An internet connection is required. Authentication, checkout, inventory reservation, payment, and fulfillment are simulations only.
 
-
 ## Deployment
 
 The live demo is hosted on Vercel. The included `vercel.json` rewrites application routes to `/index.html` so routes such as `/products/5` and `/cart` can be refreshed directly.
-
 
 ## Credits
 
